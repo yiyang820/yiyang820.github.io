@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抽獎活動</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .container {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+  }
+
+  h1 {
+    margin-top: 0;
+  }
+
+  button {
+    padding: 10px 20px;
+	background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>平日你是哪種鵝</h1>
+    <p>點擊按鈕，抽抽看</p>
+    <button id="drawButton">點我抽抽看</button>
+    <p id="result"></p>
+  </div>
+
+ <script>
+    // 設定獎項和其對應的機率（假設總機率為 100%）
+    const prizes = [
+      { name: "土鵝", probability: 85 },
+      { name: "白羅曼鵝", probability: 4 },
+      { name: "獅頭鵝", probability: 10 },
+      { name: "黃嘴天鵝", probability: 1 }
+    ];
+
+    // 將機率轉換為累積機率，方便後續計算
+    let cumulativeProbabilities = [];
+    let cumulativeProbability = 0;
+    for (const prize of prizes) {
+      cumulativeProbability += prize.probability;
+      cumulativeProbabilities.push(cumulativeProbability);
+    }
+	
+    // 檢查是否已經抽過獎（一天只能抽一次）
+    const lastDrawDate = localStorage.getItem('lastDrawDate');
+    const today = new Date().toISOString().split('T')[0];
+
+    if (lastDrawDate === today) {
+      document.getElementById('drawButton').disabled = false;
+    }
+	
+    // 監聽按鈕點擊事件，進行抽獎
+    const drawButton = document.getElementById('drawButton');
+    const resultParagraph = document.getElementById('result');
+    drawButton.addEventListener('click', () => {
+      const randomValue = Math.random() * 100; // 生成 0 到 100 之間的隨機數
+      let selectedPrize = null;
+
+      for (let i = 0; i < cumulativeProbabilities.length; i++) {
+        if (randomValue <= cumulativeProbabilities[i]) {
+          selectedPrize = prizes[i].name;
+          break;
+        }
+      }
+
+      resultParagraph.textContent = `你今天是：${selectedPrize}`;
+	  drawButton.disabled = false;
+
+      // 儲存抽獎日期
+      localStorage.setItem('lastDrawDate', today);
+    });
+  </script>
+</body>
+</html>
